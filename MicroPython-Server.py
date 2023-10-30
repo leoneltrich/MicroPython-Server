@@ -1,33 +1,51 @@
-import socket
-from HandleRequests import *
 from Variables import *
-
-#Might need to change to usocket
-
-class MicroPyServer:
+from HttpsModule import *
+from HttpModule import *
+from LogAllRequests import LogAllRequests
+import _thread
+import time
+#todo Might need to change to usocket
+#todo include no cashe response header in request handler
+class Main():
     
     def __init__(self):
-        self._sock = None
-        self.handle_request = HandleRequests()
-        self.port = Variables.PORT
-        self.host = Variables.HOST
+        self.https_server = HttpsModule()
+        self.http_server = HttpModule()
+        self.log = LogAllRequests()
+    
+    def startHttpsServer(self):
+        self.https_server.boot()
         
-        
+    def startHttpServer(self):          
+        self.http_server.boot()
+
+    
+    
     def start(self):
-        self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._sock.bind((Variables.HOST, self.port))
-        self._sock.listen(1)
-        
-        print(f"Server started on http://{self.host}:{self.port}")
-        
-        while True:
-            client, addr = self._sock.accept()
-            request_data = client.recv(4096)
-            if request_data:
-                self.handle_request.handle_request(client, request_data, addr[0])
-            client.close() #Obsolete?
+        RUN = True
+        while(RUN):
+            try:
+                if(Variables.HTTP_PORT == Variables.HTTPS_PORT):
+                    RUN = False
+                    raise Exception("HTTP-Port can not be same as HTTPS-Port")
+                if(not Variables.ACCEPT_HTTPS_TRAFFIC and not Variables.ACCEPT_HTTP_TRAFFIC):
+                    RUN = False
+                    raise Exception("At least one server instance needs to be activated to boot")
+            except Exception as e:
+                print(e)
+                break
+            if(Variables.ACCEPT_HTTPS_TRAFFIC and not Variables.ACCEPT_HTTP_TRAFFIC):
+                self.log.logServerStart(Variables.HOST, Variables.HTTPS_PORT, "https")
+                self.startHttpsServer()
+            elif(Variables.ACCEPT_HTTPS_TRAFFIC and Variables.ACCEPT_HTTP_TRAFFIC):
+                self.log.logServerStart(Variables.HOST, Variables.HTTPS_PORT, "https")
+                _thread.start_new_thread(self.startHttpsServer, ())
+                
+            if(Variables.ACCEPT_HTTP_TRAFFIC):
+                self.log.logServerStart(Variables.HOST, Variables.HTTP_PORT, "http")
+                self.startHttpServer()
+                
 
 
-server = MicroPyServer()
-
+server = Main()
 server.start()

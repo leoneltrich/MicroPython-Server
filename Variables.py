@@ -1,8 +1,16 @@
 class Variables:
+    
     HOST = "127.0.0.1"
-    PORT=8080 
+    HTTP_PORT=8080 
+    HTTPS_PORT=8443
+    
+    ACCEPT_HTTPS_TRAFFIC = True
+    ACCEPT_HTTP_TRAFFIC = True
     
     ROOT = "./data"
+    
+    PATH_TO_SSL_CERTIFICATE = "./ssl/certificate.pem"
+    PATH_TO_SSL_PRIVATE_KEY = "./ssl/private_key.pem"
     
     FORM_SAFE = True
 

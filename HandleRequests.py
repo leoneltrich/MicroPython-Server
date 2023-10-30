@@ -1,24 +1,34 @@
 from Variables import *
-from LogAllRequests import * #May be removed in Production | you may also remove line 9 and line 13 | client_ip may be removed from all contracts
+from LogAllRequests import * #todo May be removed in Production | you may also remove line 9 and line 13 | client_ip may be removed from all contracts
 
 
 class HandleRequests:
 
     def __init__ (self):
-        self.log_all_requests = LogAllRequests()
+        self.log = LogAllRequests()
     
-    def handle_request(self, client, request_data, client_ip):
-        request_parts = self.initial_processing(request_data)
-        request_type = request_parts[0]
-        self.log_all_requests.log(client_ip, request_type)
-        if(request_type=="GET"):
-            self.process_get(client, request_parts[1])
+    def handle_request(self, client, request_data, client_ip, protocol, ssl_tls_protocol):
+        try:
+            request_parts = self.initial_processing(request_data)
+            request_type = request_parts[0]
+            self.log.log(client_ip, request_type, protocol)
+            if(ssl_tls_protocol is not None):
+                self.log.logProtocol(ssl_tls_protocol)
+            if(request_type=="GET"):
+                self.process_get(client, request_parts[1])
+        except:
+            print("Error handling the request")
+            raise
         
     def initial_processing(self, request_data):
-        request_lines = request_data.split(b"\r\n")
-        request_line = request_lines[0].decode("utf-8")
-        request_parts = request_line.split(" ")
-        return request_parts
+        try:
+            request_lines = request_data.split(b"\r\n")
+            request_line = request_lines[0].decode("utf-8")
+            request_parts = request_line.split(" ")
+            return request_parts
+        except:
+            print("Error decoding request")
+            raise
     
     def process_get(self, client, requested_path):        
         if(requested_path[-1] == "?" and Variables.FORM_SAFE == True ):
@@ -34,7 +44,7 @@ class HandleRequests:
             self.error_415(client)
             return
         else:
-            path = f"./data{requested_path}" #self. ?
+            path = f"./data{requested_path}" #todo self. ?
         
         try:
             with open(path, "rb") as file:
@@ -48,8 +58,13 @@ class HandleRequests:
                 response += content_type.encode('utf-8')
                 response += content_length.encode('utf-8')
                 response += file_content
-                client.send(response)
-                self.log_all_requests.served()
+                try:
+                    client.send(response)
+                except OSError as e:
+                    print(f"An error occurred sending the response: {e}")
+                finally:
+                    client.close()
+                self.log.served()
 
         except OSError as e:
             print("Error:", e)
