@@ -1,0 +1,16 @@
+*{box-sizing: border-box; margin: 0px; padding: 0px; color: white}
+
+html{min-height: 100%; background-color: white; background-image: url("media/img/background.png"); background-size: cover; background-repeat: no-repeat; background-position: center; display: flex; justify-content: center; align-items: center;}
+
+body{width: 80%; max-width: 800px; height: 100%; display: flex; justify-content: center; flex-direction: column; min-height: 700px;}
+
+h1{font: 700 55px Montserrat, sans-serif}
+h2{font: 600 28px Montserrat, sans-serif}
+
+img{height: 25%;margin-top: 10px;}
+
+p{font: 500 16px Montserrat, sans-serif; width: 80%; max-width: 450px; margin-top: 90px;}
+
+.button{border: 2px solid white; background-color: white; color: black; border-radius: 50px; padding: 10px 15px; font: 600 10px Montserrat; margin-top: 40px; max-width: 200px;}
+
+.button:hover{background-color: black; border: 2px solid white; color: white; cursor: pointer;}

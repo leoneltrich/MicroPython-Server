@@ -1,0 +1,11 @@
+#Ignore all .DS_Store files
+.DS_Store
+
+#Ignore all files of type pem
+*.pem
+
+#Ignore python cache
+__pycache__
+
+#Ignore documentation.txt
+documentation.txt
